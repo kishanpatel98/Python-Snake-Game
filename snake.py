@@ -157,7 +157,7 @@ def redrawWindow(surface):
     snack.draw(surface)
     drawGrid(width, rows, surface)
     font = pygame.font.SysFont('comicsans', 40)
-    text = font.render('Score: ' + str(len(snake.body)), 1, (0,0,0))
+    text = font.render('Score: ' + str(len(snake.body)), 1, (25, 0, 255))
     surface.blit(text, (0, 0))
     pygame.display.update()
 
@@ -222,7 +222,59 @@ def get_highscore():
     # Sorted by the score.
     return sorted(highscores, key = itemgetter(1), reverse = True)
 
-def main():
+def main_menu(surface):
+    pygame.font.init()
+    title_font = pygame.font.SysFont("comicsans", 70)
+    title = title_font.render("Welcome to Snake", True, (66, 135, 245))
+    play_game_font = pygame.font.SysFont('comicsans',35)
+    play_game_button = play_game_font.render('Play Game' , True , (0,0,0))
+    quit_game_font = pygame.font.SysFont('comicsans',35)
+    quit_game_button = quit_game_font.render('Quit Game' , True , (0,0,0))
+    scoreboard_font = pygame.font.SysFont('comicsans',35)
+    scoreboard_button = scoreboard_font.render('Scoreboard' , True , (0,0,0))
+
+    run = True
+
+    while run:
+        surface.blit(title, (surface.get_width() / 2 - title.get_width() / 2, 0))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 - 10 <= mouse[1] <= surface.get_height() / 2 - 10 + 40:
+                    play_game()
+                elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 50 <= mouse[1] <= surface.get_height() / 2 + 50 + 40:
+                    pass
+                elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 110 <= mouse[1] <= surface.get_height() / 2 + 110 + 40:
+                    run = False
+                    pygame.quit()
+
+        # Stores the (x,y) coordinates as a tuple
+        mouse = pygame.mouse.get_pos()
+
+        # change color of button upon hover
+        if surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 - 10 <= mouse[1] <= surface.get_height() / 2 - 10 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 - 10, 160, 40])
+        elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 50 <= mouse[1] <= surface.get_height() / 2 + 50 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 50, 160, 40])
+        elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 110 <= mouse[1] <= surface.get_height() / 2 + 110 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 110, 160, 40])
+        else:
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 - 10, 160, 40])
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 50, 160, 40])
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - play_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 110, 160, 40])
+
+        # superimpose the button text onto the button
+        surface.blit(play_game_button, (surface.get_width() / 2 - play_game_button.get_width() / 2, surface.get_height() / 2))
+        surface.blit(scoreboard_button, (surface.get_width() / 2 - scoreboard_button.get_width() / 2, surface.get_height() / 2 + 60))
+        surface.blit(quit_game_button, (surface.get_width() / 2 - quit_game_button.get_width() / 2, surface.get_height() / 2 + 120))
+    pygame.quit()
+
+
+def play_game():
     global width, rows, snake, snack, flag
     width = 500
     rows = 20
@@ -232,7 +284,6 @@ def main():
     snake = snake((255, 0, 0), (9, 8))
     snack = cube(randomSnack(rows, snake), color = (255, 0, 0))
     clock = pygame.time.Clock()
-    pygame.font.init()
     font = pygame.font.SysFont('comicsans', 30, True)
 
     while run:
@@ -259,5 +310,16 @@ def main():
 
         redrawWindow(win)
     pygame.quit()
+
+def main():
+    global width
+    width = 500
+    rows = 20
+    run = True
+    win = pygame.display.set_mode((width, width))
+    pygame.display.set_caption("Snake")
+    main_menu(win)
+
+
 
 main()
