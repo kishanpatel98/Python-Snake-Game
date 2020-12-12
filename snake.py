@@ -156,6 +156,9 @@ def redrawWindow(surface):
     snake.draw(surface)
     snack.draw(surface)
     drawGrid(width, rows, surface)
+    font = pygame.font.SysFont('comicsans', 40)
+    text = font.render('Score: ' + str(len(snake.body)), 1, (0,0,0))
+    surface.blit(text, (0, 0))
     pygame.display.update()
 
 
@@ -223,20 +226,23 @@ def main():
     global width, rows, snake, snack, flag
     width = 500
     rows = 20
-    flag = True
+    run = True
     win = pygame.display.set_mode((width, width))
+    pygame.display.set_caption("Snake")
     snake = snake((255, 0, 0), (9, 8))
     snack = cube(randomSnack(rows, snake), color = (255, 0, 0))
     clock = pygame.time.Clock()
+    pygame.font.init()
+    font = pygame.font.SysFont('comicsans', 30, True)
 
-    while flag:
+    while run:
         pygame.time.delay(50)
         clock.tick(10) #limits snake movement to 10 block/second
         snake.move()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                flag = False
+                run = False
                 pygame.display.quit()
 
         if snake.body[0].pos == snack.pos:
@@ -252,8 +258,6 @@ def main():
                 break
 
         redrawWindow(win)
-
-
-    pass
+    pygame.quit()
 
 main()
