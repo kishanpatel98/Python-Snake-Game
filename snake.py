@@ -209,29 +209,19 @@ def message_box(title, score):
     except:
         pass
 
-def store_highscore(highscores):
-    with open('Scores.json', 'w') as scores:
-        json.dump(highscores, scores)
 
-def get_highscore():
-    try:
-        with open('Scores.json', 'r') as scores:
-            highscores = json.load(scores)  # Read the json file.
-    except FileNotFoundError:
-        return []  # Return an empty list if the file doesn't exist.
-    # Sorted by the score.
-    return sorted(highscores, key = itemgetter(1), reverse = True)
 
 def main_menu(surface):
     pygame.font.init()
     title_font = pygame.font.SysFont("comicsans", 70)
     title = title_font.render("Welcome to Snake", True, (66, 135, 245))
     play_game_font = pygame.font.SysFont('comicsans',35)
-    play_game_button = play_game_font.render('Play Game' , True , (0,0,0))
-    quit_game_font = pygame.font.SysFont('comicsans',35)
-    quit_game_button = quit_game_font.render('Quit Game' , True , (0,0,0))
+    play_game_button = play_game_font.render('Play Game', True, (0,0,0))
     scoreboard_font = pygame.font.SysFont('comicsans',35)
-    scoreboard_button = scoreboard_font.render('Scoreboard' , True , (0,0,0))
+    scoreboard_button = scoreboard_font.render('Scoreboard', True, (0,0,0))
+    quit_game_font = pygame.font.SysFont('comicsans',35)
+    quit_game_button = quit_game_font.render('Quit Game', True, (0,0,0))
+
 
     run = True
 
@@ -245,7 +235,7 @@ def main_menu(surface):
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 - 10 <= mouse[1] <= surface.get_height() / 2 - 10 + 40:
-                    play_game()
+                    play_game(surface)
                 elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 50 <= mouse[1] <= surface.get_height() / 2 + 50 + 40:
                     pass
                 elif surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 110 <= mouse[1] <= surface.get_height() / 2 + 110 + 40:
@@ -274,13 +264,13 @@ def main_menu(surface):
     pygame.quit()
 
 
-def play_game():
-    global width, rows, snake, snack, flag
-    width = 500
-    rows = 20
+def play_game(surface):
+    global snake, snack, flag
+    # width = 500
+    # rows = 20
     run = True
-    win = pygame.display.set_mode((width, width))
-    pygame.display.set_caption("Snake")
+    #win = pygame.display.set_mode((width, width))
+    #pygame.display.set_caption("Snake")
     snake = snake((255, 0, 0), (9, 8))
     snack = cube(randomSnack(rows, snake), color = (255, 0, 0))
     clock = pygame.time.Clock()
@@ -304,15 +294,173 @@ def play_game():
         for x in range(len(snake.body)):
             if snake.body[x].pos in list(map(lambda square: square.pos, snake.body[x + 1:])):
                 #print ("Score: ", len(snake.body))
-                message_box("Game Over", "Score: {}! Would you like to save score?".format(len(snake.body)))
+                #message_box("Game Over", "Score: {}! Would you like to save score?".format(len(snake.body)))
+                game_over(surface, len(snake.body))
                 snake.reset((9, 8))
                 break
 
-        redrawWindow(win)
+        redrawWindow(surface)
     pygame.quit()
 
+def game_over(surface, score):
+    #message_box("Game Over", "Score: {}! Would you like to save score?".format(score))
+
+    pygame.font.init()
+    title_font = pygame.font.SysFont("comicsans", 70)
+    title = title_font.render("Game Over", True, (255, 255, 255))
+    button_font = pygame.font.SysFont('comicsans',35)
+    play_again_button = button_font.render('Play Again', True, (0,0,0))
+    save_score_button = button_font.render('Save Score', True, (0,0,0))
+    quit_game_button = button_font.render('Quit Game', True, (0,0,0))
+    run = True
+
+    while run:
+        surface.blit(title, (surface.get_width() / 2 - title.get_width() / 2, 0))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if surface.get_width() / 2 - play_again_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_again_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 - 10 <= mouse[1] <= surface.get_height() / 2 - 10 + 40:
+                    run = False
+                elif surface.get_width() / 2 - save_score_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - save_score_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 50 <= mouse[1] <= surface.get_height() / 2 + 50 + 40:
+                    save_score(surface, score)
+                elif surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 110 <= mouse[1] <= surface.get_height() / 2 + 110 + 40:
+                    run = False
+                    pygame.quit()
+
+        # Stores the (x,y) coordinates as a tuple
+        mouse = pygame.mouse.get_pos()
+
+        # change color of button upon hover
+        if surface.get_width() / 2 - play_again_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - play_again_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 - 10 <= mouse[1] <= surface.get_height() / 2 - 10 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - play_again_button.get_width() / 2 - 15, surface.get_height() / 2 - 10, 160, 40])
+        elif surface.get_width() / 2 - save_score_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - save_score_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 50 <= mouse[1] <= surface.get_height() / 2 + 50 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - save_score_button.get_width() / 2 - 15, surface.get_height() / 2 + 50, 160, 40])
+        elif surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15 <= mouse[0] <= surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15 + 160 and surface.get_height() / 2 + 110 <= mouse[1] <= surface.get_height() / 2 + 110 + 40:
+            pygame.draw.rect(surface, (10, 150, 0), [surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 110, 160, 40])
+        else:
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - play_again_button.get_width() / 2 - 15, surface.get_height() / 2 - 10, 160, 40])
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - save_score_button.get_width() / 2 - 15, surface.get_height() / 2 + 50, 160, 40])
+            pygame.draw.rect(surface, (16, 240, 0), [surface.get_width() / 2 - quit_game_button.get_width() / 2 - 15, surface.get_height() / 2 + 110, 160, 40])
+
+        # superimpose the button text onto the button
+        surface.blit(play_again_button, (surface.get_width() / 2 - play_again_button.get_width() / 2, surface.get_height() / 2))
+        surface.blit(save_score_button, (surface.get_width() / 2 - save_score_button.get_width() / 2, surface.get_height() / 2 + 60))
+        surface.blit(quit_game_button, (surface.get_width() / 2 - quit_game_button.get_width() / 2, surface.get_height() / 2 + 120))
+
+pygame.font.init()
+COLOR_INACTIVE = pygame.Color('lightskyblue3')
+COLOR_ACTIVE = pygame.Color('dodgerblue2')
+FONT = pygame.font.Font(None, 32)
+class InputBox:
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = FONT.render(text, True, self.color)
+        self.active = True
+
+    def handle_event(self, event):
+        name = ''
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                elif event.key == pygame.K_KP_ENTER or event.key == pygame.K_RETURN:
+                    name = self.text
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = FONT.render(self.text, True, self.color)
+        return name
+
+    def update(self):
+        # Resize the box if the text is too long.
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
+
+
+
+def save_score(surface, score):
+    pygame.font.init()
+    title_font = pygame.font.SysFont("comicsans", 70)
+    title = title_font.render("Save Score", True, (255, 255, 255))
+    instruction_font = pygame.font.SysFont("comicsans", 35)
+    instructions = instruction_font.render("Please enter your name", True, (255, 255, 255))
+
+    running = True
+    username = InputBox(100, 100, 140, 32)
+    input_boxes = [username]
+    name = ''
+
+    while running:
+        surface.blit(title, (surface.get_width() / 2 - title.get_width() / 2, 0))
+        surface.blit(instructions, (surface.get_width() / 2 - instructions.get_width() / 2, title.get_height() + 10))
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                running = False
+            for box in input_boxes:
+                name = box.handle_event(event)
+                if name:
+                    store_highscore(score)
+                    display_scoreboard(surface)
+                    running = False
+                    return
+            else:
+                continue # only executed if the inner loop did NOT break
+            break # only executed if the inner loop DID break
+
+        for box in input_boxes:
+            box.update()
+
+
+        surface.fill((30, 30, 30))
+        for box in input_boxes:
+            box.draw(surface)
+
+def store_highscore(highscores):
+    with open('Scores.json', 'w') as scores:
+        json.dump(highscores, scores)
+
+def get_highscore():
+    try:
+        with open('Scores.json', 'r') as scores:
+            highscores = json.load(scores)  # Read the json file.
+    except FileNotFoundError:
+        return []  # Return an empty list if the file doesn't exist.
+    # Sorted by the score.
+    return sorted(highscores, key = itemgetter(1), reverse = True)
+
+def display_scoreboard(surface):
+    pass
+
+
 def main():
-    global width
+    global width, rows
     width = 500
     rows = 20
     run = True
